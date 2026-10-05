@@ -52,10 +52,8 @@ export default function App() {
       <header className="top">
         <div><strong>ApparelFlow ERP</strong> <span className="sub">Cutting Gatekeeper Terminal</span></div>
         <div className="who">
-          <span className="persona-label">Switch role:</span>
-          {PERSONAS.map((p) => (
-            <button key={p.role} className={`chip ${user.role === p.role ? 'on' : ''}`} onClick={() => login(p.email, PASSWORD)} aria-pressed={user.role === p.role}>{p.label}</button>
-          ))}
+          <span className="persona-label">Signed in as:</span>
+          <span className="chip on">{user.full_name}</span>
           <button className="btn ghost" onClick={logout}>Log out</button>
         </div>
       </header>
