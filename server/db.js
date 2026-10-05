@@ -8,7 +8,7 @@ async function connect() {
   if (process.env.DATABASE_URL) {
     const { default: pg } = await import('pg');
     const ssl = process.env.PGSSL === 'false' ? false : { rejectUnauthorized: false };
-    const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL, ssl });
+    const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL, ssl, max: process.env.VERCEL ? 3 : 10 });
     return {
       query: (s, p) => pool.query(s, p),
       exec: (s) => pool.query(s),
