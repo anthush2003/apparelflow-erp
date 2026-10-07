@@ -10,8 +10,9 @@ const PERSONAS = [
 const LIGHTS = { GREEN: ['●', 'MATCH'], YELLOW: ['▲', 'EXCESS'], RED: ['■', 'SHORTAGE'] };
 const light = (e, a) => (a === null || a === undefined ? null : a === e ? 'GREEN' : a > e ? 'YELLOW' : 'RED');
 const fmt = (d) => (d ? new Date(d).toLocaleString() : '—');
-const isYardsStr = (s) => /^\d{1,7}(\.\d{1,2})?$/.test(s) && Number(s) > 0;
-const isQtyStr = (s) => /^[1-9]\d{0,5}$/.test(s);
+const isYardsStr = (s) => /^\d{1,7}(\.\d{1,2})?$/.test(s) && Number(s) > 0 && Number(s) <= 1000000;
+const isQtyStr = (s) => /^[1-9]\d{0,5}$/.test(s) && Number(s) <= 100000;
+const isCountStr = (s) => /^\d{1,7}$/.test(s) && Number(s) <= 1000000;
 
 function Light({ s }) {
   if (!s) return <span className="badge b-none">UNCOUNTED</span>;
@@ -44,6 +45,7 @@ export default function App() {
     setUser(r.user);
   }
   const logout = () => { setToken(null); setUser(null); };
+  const switchRole = async (p) => { try { await login(p.email, PASSWORD); } catch { logout(); } };
   if (!ready) return <p className="center">Loading…</p>;
   if (!user) return <Login onLogin={login} />;
   const View = { cutting_supervisor: SupervisorView, cutting_verifier: VerifierView, sewing_supervisor: SewingView }[user.role];
@@ -52,8 +54,11 @@ export default function App() {
       <header className="top">
         <div><strong>ApparelFlow ERP</strong> <span className="sub">Cutting Gatekeeper Terminal</span></div>
         <div className="who">
-          <span className="persona-label">Signed in as:</span>
-          <span className="chip on">{user.full_name}</span>
+          <span className="persona-label">Role switcher:</span>
+          {PERSONAS.map((p) => (
+            <button key={p.role} className={`chip ${user.role === p.role ? 'on' : ''}`} aria-pressed={user.role === p.role}
+              onClick={() => user.role !== p.role && switchRole(p)}>{p.label}</button>
+          ))}
           <button className="btn ghost" onClick={logout}>Log out</button>
         </div>
       </header>
@@ -170,7 +175,7 @@ function OrderModal({ recipes, onClose, onDone }) {
   function validate() {
     const e = {};
     if (!recipe) e.recipe_id = 'Select a recipe';
-    if (!isQtyStr(f.target_qty)) e.target_qty = 'Whole number from 1 to 999999 (no decimals, negatives or text)';
+    if (!isQtyStr(f.target_qty)) e.target_qty = 'Whole number from 1 to 100000 (no decimals, negatives or text)';
     if (!/^[A-Za-z0-9-]{3,40}$/.test(f.fabric_roll_id)) e.fabric_roll_id = '3-40 letters, digits or hyphens, e.g. FAB-ROLL-882';
     if (!isYardsStr(f.actual_fabric_yds)) e.actual_fabric_yds = 'Positive number, max 2 decimals';
     setErrs(e);
@@ -281,7 +286,7 @@ function Terminal({ id, onBack, onDone }) {
 
   const rows = o.items.map((i) => {
     const raw = vals[i.component_id] ?? '';
-    const valid = raw === '' || /^\d{1,7}$/.test(raw);
+    const valid = raw === '' || isCountStr(raw);
     const n = raw !== '' && valid ? Number(raw) : null;
     return { ...i, raw, valid, n, light: light(i.expected_qty, n) };
   });
@@ -320,7 +325,7 @@ function Terminal({ id, onBack, onDone }) {
                   <td>
                     <input aria-label={`Actual count for ${r.component_name}`} className={`num ${r.valid ? '' : 'bad'}`} inputMode="numeric" value={r.raw}
                       onChange={(e) => setVals({ ...vals, [r.component_id]: e.target.value })} />
-                    {!r.valid && <div className="ferr">⚠ Whole number ≥ 0 only</div>}
+                    {!r.valid && <div className="ferr">⚠ Whole number from 0 to 1,000,000 only</div>}
                   </td>
                   <td>{r.n === null ? '—' : (r.n - r.expected_qty > 0 ? '+' : '') + (r.n - r.expected_qty)}</td>
                   <td><Light s={r.light} /></td>

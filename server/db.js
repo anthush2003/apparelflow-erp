@@ -28,6 +28,9 @@ async function connect() {
       }
     };
   }
+  if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
+    throw new Error('DATABASE_URL is required in production: the embedded in-memory DB would lose all data on every cold start');
+  }
   // Local dev / tests: embedded PostgreSQL (WASM). Same SQL dialect as production.
   const { PGlite } = await import('@electric-sql/pglite');
   const db = new PGlite(process.env.PGLITE_DIR || undefined);

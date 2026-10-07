@@ -3,7 +3,7 @@
 Full-stack implementation of the Webtezza practical challenge: a **server-enforced hard stop** that stops any
 unverified, mismatched or short cutting batch from reaching the Sewing Queue.
 
-**Live URL:** `<paste your Render URL here>`  |  **Repo:** `<paste GitHub URL here>`
+**Live URL:** https://apparelflow-erp-three.vercel.app/  |  **Repo:** `<paste your GitHub URL here>`
 
 ## Demo credentials (password for all: `Demo@1234`)
 | Role | Email | Can | Cannot |
@@ -12,7 +12,7 @@ unverified, mismatched or short cutting batch from reaching the Sewing Queue.
 | `cutting_verifier` | verifier@apparelflow.demo | Count parts, approve / reject | Create orders, see Sewing Queue |
 | `sewing_supervisor` | sewing@apparelflow.demo | See VERIFIED batches, start sewing | See pending / rejected orders |
 
-The login page has a Demo Credential Panel; once signed in, a header Role Switcher re-authenticates through the real login API.
+The login page has a Demo Credential Panel; once signed in, the header Role Switcher re-authenticates as another persona through the real login API (a new JWT is issued; nothing is switched client-side only).
 
 ## Stack
 React 18 + Vite (client) · Node/Express (API, also serves the built client) · PostgreSQL (Neon / Supabase / Render) ·
@@ -58,12 +58,19 @@ npm test                 # 14 tests
 npm run build && npm start   # http://localhost:4000  (single process: API + UI)
 # or dev mode: npm run dev:server  (terminal 1)  +  npm run dev:client (terminal 2, http://localhost:5173)
 ```
-## Deploy (Render + Neon)
+## Deploy (Vercel or Render + Neon/Supabase Postgres)
+**Vercel:** import the repo; Project Settings → Environment Variables → `DATABASE_URL`, `JWT_SECRET` (Production). `vercel.json` already routes `/api/*` to `api/index.js`.
+The server refuses to boot in production without `DATABASE_URL` (an in-memory DB would silently lose data).
+
+### Render alternative
 1. Create a free Postgres at neon.tech (or Supabase) and copy the connection string.
 2. Push to GitHub. Render → New Web Service → select repo.
    Build: `npm install && npm run build` · Start: `npm start`
 3. Env vars: `DATABASE_URL`, `JWT_SECRET` (long random string), `NODE_ENV=production`.
 4. Schema and seed data are created automatically on first boot.
+
+## Input limits (client and server agree)
+Quantity 1–100000 whole numbers · fabric yards >0, ≤1,000,000, max 2 decimals · counts 0–1,000,000 whole numbers · roll ID 3–40 chars `[A-Za-z0-9-]` · rejection reason 5–500 chars.
 
 ## cURL checks (as evaluators will do)
 ```bash
