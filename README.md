@@ -3,7 +3,7 @@
 Full-stack implementation of the Webtezza practical challenge: a **server-enforced hard stop** that stops any
 unverified, mismatched or short cutting batch from reaching the Sewing Queue.
 
-**Live URL:** https://apparelflow-erp-three.vercel.app/  |  **Repo:** `<paste your GitHub URL here>`
+**Live URL:** https://apparelflow-erp-three.vercel.app/  |  **Repo:** https://github.com/anthush2003/apparelflow-erp
 
 ## Demo credentials (password for all: `Demo@1234`)
 | Role | Email | Can | Cannot |
